@@ -24,7 +24,7 @@ module RackWebpack
 
           check_existing_pid
 
-          log 'Starting Webpack...'
+          log 'Starting webpack-dev-server...'
           delete_socket
           pid = Process.spawn "#{webpack_cmd} --port #{socket_path}", pgroup: true, out: $stdout, err: $stderr
           mutex.set( pid )
@@ -66,7 +66,7 @@ module RackWebpack
       end
       
       def restart
-        log 'Restarting Webpack. It must have crashed.'
+        log 'Restarting webpack-dev-server...'
         shutdown
         run
       end
