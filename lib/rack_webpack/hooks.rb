@@ -9,3 +9,7 @@ class Rack::Server
 
   alias_method_chain :start, :webpack
 end
+
+at_exit do
+  RackWebpack::WebpackRunner.exit
+end

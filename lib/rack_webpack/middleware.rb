@@ -6,17 +6,29 @@ module RackWebpack
     end
 
     def call(env)
-      if env['REQUEST_PATH'] =~ /\.bundle\.js/
+      path = env['REQUEST_PATH']
+      
+      if path =~ /\.bundle\.js/
         Kernel.warn 'JDS Request To Proxy'
 
-        x = SocketHttp.new( WebpackRunner.socket_path )
-        request = Net::HTTP::Get.new('/assets/dashboard.bundle.js')
-        resp = x.request( request )
-
+        begin
+          resp = get( path )
+        rescue Errno::ECONNREFUSED
+          WebpackRunner.restart
+          sleep 5
+          resp = get( path )
+        end
+                
         [resp.code, resp.to_hash, [resp.body]]
       else
         @app.call(env)
       end
+    end
+    
+    def get( path )
+      http = SocketHttp.new( WebpackRunner.socket_path )
+      request = Net::HTTP::Get.new( path )
+      http.request( request )      
     end
   end
 end
