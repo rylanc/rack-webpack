@@ -4,7 +4,7 @@ module RackWebpack
   class WebpackRunner
     class << self
       def socket_path
-        'tmp/test_socket'
+        File.expand_path('tmp/webpack.socket')
       end
       
       def webpack_cmd
