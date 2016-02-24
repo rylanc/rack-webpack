@@ -5,7 +5,7 @@ module RackWebpack
   
       def initialize(app)
         @app = app
-        info "Loaded #{self.class.to_s}"
+        warn "Loaded #{self.class.to_s}"
       end
 
       def call(env)
@@ -26,12 +26,25 @@ module RackWebpack
         @logger ||= defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
       end
 
+      def format_log( msg )
+        "[RackWebpack::Middleware] #{msg}"
+      end
+
+      def log( sev, msg )
+        logger.log sev, format_log( msg )
+      end
+      
+      def warn( msg )
+        log Logger::WARN, msg
+        Kernel.warn format_log( msg )
+      end
+      
       def info( msg )
-        logger.info "[RackWebpack::Middleware] #{msg}"
+        log Logger::INFO, msg
       end
   
       def restart
-        info 'Error reading from webpack-dev-server UNIX socket. It must have crashed.'
+        warn 'Error reading from webpack-dev-server UNIX socket. It must have crashed.'
         WebpackRunner.restart
         sleep 2
       end

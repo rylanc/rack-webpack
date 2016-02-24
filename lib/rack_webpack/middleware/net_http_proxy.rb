@@ -2,6 +2,11 @@ module RackWebpack
   module Middleware
     class NetHttpProxy < Base
 
+      def initialize( app )
+        super
+        warn 'For better Webpack proxy performance install curb gem >= 0.9.0'
+      end
+      
       protected
       
       def proxy( path )
