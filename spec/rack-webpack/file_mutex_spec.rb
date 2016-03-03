@@ -11,7 +11,7 @@ describe RackWebpack::FileMutex do
     subject { RackWebpack::FileMutex.new('webpack-test') }
 
     it 'creates the directory if it does not exist' do
-      expect(FileUtils).to receive(:mkdir_p).with(RackWebpack::FileMutex.locks_dir.parent) { true }
+      expect(FileUtils).to receive(:mkdir_p).with(RackWebpack::FileMutex.locks_dir) { true }
       subject
     end
   end

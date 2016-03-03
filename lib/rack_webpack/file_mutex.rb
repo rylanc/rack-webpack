@@ -17,7 +17,7 @@ class RackWebpack::FileMutex
     @name = name
 
     # Ensure the file enclosing the PID exists
-    FileUtils.mkdir_p(self.class.locks_dir.parent)
+    FileUtils.mkdir_p(self.class.locks_dir)
   end
 
   def lock_file_path
