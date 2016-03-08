@@ -1,7 +1,8 @@
 module RackWebpack
   Configuration = Struct.new(
     :webpack_options,
-    :proxy_condition
+    :proxy_condition,
+    :disable
   )
   class << self
     attr_accessor :curb_available
