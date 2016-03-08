@@ -2,7 +2,7 @@ module RackWebpack
   module Middleware
 
     class Base
-  
+
       def initialize(app)
         @app = app
         warn "Loaded #{self.class.to_s}"
@@ -10,8 +10,8 @@ module RackWebpack
 
       def call(env)
         path = env['REQUEST_PATH']
-    
-        if path =~ /\.bundle\.js/
+
+        if RackWebpack.config.proxy_condition.call(path)
           info "Proxying #{path}"
 
           proxy( path )
@@ -19,7 +19,7 @@ module RackWebpack
           @app.call(env)
         end
       end
-  
+
       protected
 
       def logger
@@ -33,22 +33,22 @@ module RackWebpack
       def log( sev, msg )
         logger.log sev, format_log( msg )
       end
-      
+
       def warn( msg )
         log Logger::WARN, msg
         Kernel.warn format_log( msg )
       end
-      
+
       def info( msg )
         log Logger::INFO, msg
       end
-  
+
       def restart
         warn 'Error reading from webpack-dev-server UNIX socket. It must have crashed.'
         WebpackRunner.restart
         sleep 2
       end
-  
+
     end
   end
 end

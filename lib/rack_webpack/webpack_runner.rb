@@ -6,11 +6,11 @@ module RackWebpack
       def socket_path
         File.expand_path('tmp/webpack.socket')
       end
-      
+
       def webpack_cmd
         'node_modules/webpack-dev-server/bin/webpack-dev-server.js'
       end
-      
+
       def mutex
         @mutex ||= FileMutex.new('webpack-server')
       end
@@ -18,7 +18,7 @@ module RackWebpack
       def run
         @run_count ||= 0
         return if @run_count > 0 && mutex.get
-      
+
         if mutex.acquire
           log "Lock acquired on PID file #{mutex.lock_file_path}"
 
@@ -26,7 +26,12 @@ module RackWebpack
 
           log 'Starting webpack-dev-server...'
           delete_socket
-          pid = Process.spawn "#{webpack_cmd} --port #{socket_path}", pgroup: true, out: $stdout, err: $stderr
+          pid = Process.spawn(
+            "#{webpack_cmd} --port #{socket_path} #{RackWebpack.config.webpack_options}",
+            pgroup: true,
+            out: $stdout,
+            err: $stderr
+          )
           mutex.set( pid )
           log "Webpack started with PID #{pid}"
 
@@ -34,16 +39,16 @@ module RackWebpack
           log "PID file #{mutex.lock_file_path} is already locked."
           log 'Webpack should be running. Otherwise try deleting the PID file and restarting.'
         end
-        
+
         @run_count += 1
       end
 
       def shutdown( pid = nil )
         mutex_pid = mutex.get
         pid ||= mutex_pid
-        
+
         return unless pid && mutex.acquire
-        
+
         begin
           log "Sending SIGINT to pgroup #{pid}"
           Process.kill '-INT', pid
@@ -59,18 +64,18 @@ module RackWebpack
         mutex.set( nil ) if pid == mutex_pid
         delete_socket
       end
-      
+
       def exit
         shutdown
         mutex.release
       end
-      
+
       def restart
         log 'Restarting webpack-dev-server...'
         shutdown
         run
       end
-      
+
       def check_existing_pid
         existing_pid = mutex.get
         if existing_pid
@@ -89,4 +94,3 @@ module RackWebpack
     end
   end
 end
-

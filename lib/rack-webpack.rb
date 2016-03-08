@@ -1,7 +1,18 @@
-
 module RackWebpack
+  Configuration = Struct.new(
+    :webpack_options,
+    :proxy_condition
+  )
   class << self
     attr_accessor :curb_available
+
+    def config
+      @config ||= Configuration.new
+    end
+
+    def configure
+      yield(config)
+    end
   end
 end
 
