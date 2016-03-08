@@ -1,6 +1,6 @@
 module RackWebpack
   class Railtie < Rails::Railtie
-    config.after_initialize do |app|
+    initializer :rack_webpack do |app|
       if Rails.env.in?(%w(development test)) && !RackWebpack.config.disable
         proxy = ENV['RACK_WEBPACK_PROXY']
 
