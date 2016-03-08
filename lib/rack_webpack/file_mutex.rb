@@ -6,7 +6,7 @@ class RackWebpack::FileMutex
   end
 
   def self._default_locks_dir
-    defined?(Rails) ? Rails.root.join('tmp/pids') : 'tmp/pids'
+    defined?(Rails) ? Rails.root.join('tmp/pids') : Pathname.new('tmp/pids')
   end
 
   def self.locks_dir=(value)
@@ -15,6 +15,9 @@ class RackWebpack::FileMutex
 
   def initialize(name)
     @name = name
+
+    # Ensure the file enclosing the PID exists
+    FileUtils.mkdir_p(self.class.locks_dir)
   end
 
   def lock_file_path
