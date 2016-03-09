@@ -11,7 +11,7 @@ module RackWebpack
       def call(env)
         path = env['REQUEST_PATH']
 
-        if RackWebpack.config.proxy_condition.call(path)
+        if path =~ RackWebpack.config.asset_regex
           info "Proxying #{path}"
 
           proxy( path )

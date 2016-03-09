@@ -26,8 +26,9 @@ module RackWebpack
 
           log 'Starting webpack-dev-server...'
           delete_socket
+          port_options = RackWebpack.config.proxy == :unix_socket ?  "--port #{socket_path}" : ''
           pid = Process.spawn(
-            "#{webpack_cmd} --port #{socket_path} #{RackWebpack.config.webpack_options}",
+            "#{webpack_cmd} #{port_options} #{RackWebpack.config.webpack_server_options}",
             pgroup: true,
             out: $stdout,
             err: $stderr
