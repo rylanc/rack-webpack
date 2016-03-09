@@ -1,11 +1,19 @@
 module RackWebpack
-  Configuration = Struct.new(:webpack_server_options, :proxy, :asset_regex, :disable_runner)
+  Configuration = Struct.new(
+    :host,
+    :port,
+    :webpack_server_options,
+    :proxy,
+    :asset_regex,
+    :disable_runner
+  )
 
   class << self
     attr_accessor :curb_available
 
     def config
-      @config ||= Configuration.new
+      # Host and Port defaults
+      @config ||= Configuration.new('localhost', '8080')
     end
 
     def configure

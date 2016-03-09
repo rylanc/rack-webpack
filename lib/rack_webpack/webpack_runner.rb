@@ -11,6 +11,16 @@ module RackWebpack
         'node_modules/webpack-dev-server/bin/webpack-dev-server.js'
       end
 
+      def webpack_opts
+        port = RackWebpack.config.proxy == :unix_socket ? socket_path : RackWebpack.config.port
+
+         "--host #{RackWebpack.config.host} --port #{port} #{RackWebpack.config.webpack_server_options}"
+      end
+
+      def webpack_host
+        "http://#{RackWebpack.config.host}:#{RackWebpack.config.port}"
+      end
+
       def mutex
         @mutex ||= FileMutex.new('webpack-server')
       end
@@ -26,9 +36,9 @@ module RackWebpack
 
           log 'Starting webpack-dev-server...'
           delete_socket
-          port_options = RackWebpack.config.proxy == :unix_socket ?  "--port #{socket_path}" : ''
+
           pid = Process.spawn(
-            "#{webpack_cmd} #{port_options} #{RackWebpack.config.webpack_server_options}",
+            "#{webpack_cmd} #{webpack_opts}",
             pgroup: true,
             out: $stdout,
             err: $stderr
