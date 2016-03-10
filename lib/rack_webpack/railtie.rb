@@ -11,5 +11,11 @@ module RackWebpack
       end
     end
 
+    config.action_controller.asset_host = -> (source) do
+      if source =~ RackWebpack.config.asset_regex
+        RackWebpack::WebpackRunner.webpack_host
+      end
+    end
+
   end
 end
