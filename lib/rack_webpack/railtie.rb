@@ -17,5 +17,9 @@ module RackWebpack
       end
     end
 
+    rake_tasks do
+      load 'rack_webpack/tasks/assets.rake'
+    end
+
   end
 end
