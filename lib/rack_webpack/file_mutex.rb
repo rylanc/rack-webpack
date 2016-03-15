@@ -1,30 +1,42 @@
 require 'fileutils'
 
 class RackWebpack::FileMutex
-  def self.locks_dir
-    @locks_dir || _default_locks_dir
+
+  class << self
+    attr_writer :locks_dir
+
+
+    # Path to directory containing PID lock files.
+    def locks_dir
+      @locks_dir || _default_locks_dir
+    end
+
+
+    # Default value for directory containing PID lock files.
+    def _default_locks_dir
+      defined?(Rails) ? Rails.root.join('tmp/pids') : Pathname.new('tmp/pids')
+    end
   end
 
-  def self._default_locks_dir
-    defined?(Rails) ? Rails.root.join('tmp/pids') : Pathname.new('tmp/pids')
-  end
 
-  def self.locks_dir=(value)
-    @locks_dir = value
-  end
-
+  # name - Mutex name, will determine the filename of the PID lock file.
   def initialize(name)
     @name = name
-
-    # Ensure the file enclosing the PID exists
-    FileUtils.mkdir_p(self.class.locks_dir)
   end
 
+
+  # Path to the PID lock file backing this FileMutex instance.
   def lock_file_path
     File.join(self.class.locks_dir, "#{@name}.lock")
   end
 
+
+  # Attempt to acquire the mutex by obtaining a filesystem lock on the PID file.
   def acquire
+    # Ensure the locks_dir directory exists
+    FileUtils.mkdir_p(self.class.locks_dir)
+
+    # Open PID file and attempt to obtain a filesystem lock (non-blocking)
     @lock_file ||= File.open(lock_file_path, File::RDWR|File::CREAT, 0644)
     acquired = !! @lock_file.flock(File::LOCK_EX|File::LOCK_NB)
 
@@ -32,8 +44,12 @@ class RackWebpack::FileMutex
     acquired
   end
 
+
+  # Write the current process id to the PID file. Will fail if this instance is
+  # not currently the mutex owner (and is unable to acquire the mutex).
   def set( pid )
-    raise 'Must acquire lock before setting PID' unless acquire
+    raise( RackWebpack::Error,
+           'Must acquire lock before setting PID' ) unless acquire
     @lock_file.truncate(0)
     @lock_file.rewind
     @lock_file.puts pid
@@ -41,6 +57,9 @@ class RackWebpack::FileMutex
     pid
   end
 
+
+  # Get the current value of the PID file. This instance does not need to be
+  # the mutex owner.
   def get
     content =
       if @lock_file
@@ -55,6 +74,8 @@ class RackWebpack::FileMutex
     end
   end
 
+
+  # Release the filesystem lock on the PID file and delete it.
   def release
     return unless @lock_file # Skip if we don't have a file
 
@@ -63,9 +84,11 @@ class RackWebpack::FileMutex
     close_file
   end
 
+
   private
 
 
+  # Close and unset the lock file.
   def close_file
     @lock_file.close
     @lock_file = nil

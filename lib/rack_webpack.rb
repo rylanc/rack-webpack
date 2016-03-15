@@ -1,4 +1,6 @@
 module RackWebpack
+  class Error < StandardError; end
+
   Configuration = Struct.new(
     :host,
     :port,
