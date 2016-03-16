@@ -8,6 +8,5 @@ gemspec
 
 # Gems for running on CI
 group :test do
-  gem 'simplecov'
   gem 'codeclimate-test-reporter', require: false
 end
