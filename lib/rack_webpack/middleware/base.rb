@@ -22,6 +22,29 @@ module RackWebpack
 
       protected
 
+      def proxy( path )
+        failed_attempts = 0
+
+        begin
+          fetch( path )
+        rescue connection_error_clazz
+          info 'Error reading from webpack-dev-server socket. It must have crashed.'
+
+          if (failed_attempts += 1) < 3
+            restart # Restart Webpack server
+            retry   # Retry fetch
+          end
+        end
+      end
+
+      def fetch( path )
+        not_implemented 'fetch( path )'
+      end
+
+      def connection_error_clazz
+        not_implemented 'connection_error_clazz'
+      end
+
       def logger
         @logger ||= defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
       end
@@ -47,6 +70,11 @@ module RackWebpack
         warn 'Error reading from webpack-dev-server UNIX socket. It must have crashed.'
         WebpackRunner.restart
         sleep 2
+      end
+
+      def not_implemented( method )
+        name = self.class.to_s
+        raise Error, "Webpack middleware class #{name} must implement #{method}"
       end
 
     end

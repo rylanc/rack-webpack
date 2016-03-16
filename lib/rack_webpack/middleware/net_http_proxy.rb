@@ -8,22 +8,17 @@ module RackWebpack
       end
       
       protected
-      
-      def proxy( path )
-        begin
-          resp = get( path )
-        rescue Errno::ECONNREFUSED
-          info 'Error reading from webpack-dev-server UNIX socket. It must have crashed.'
-          restart
-        end
-              
+
+      def fetch( path )
+        http    = SocketHttp.new( WebpackRunner.socket_path )
+        request = Net::HTTP::Get.new( path )
+        resp    = http.request( request )
+
         [resp.code, resp.to_hash, [resp.body]]
       end
-    
-      def get( path )
-        http = SocketHttp.new( WebpackRunner.socket_path )
-        request = Net::HTTP::Get.new( path )
-        http.request( request )      
+
+      def connection_error_clazz
+        Errno::ECONNREFUSED
       end
     
     end

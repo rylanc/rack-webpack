@@ -15,7 +15,10 @@ module RackWebpack
 
     def config
       # Host and Port defaults
-      @config ||= Configuration.new('localhost', '8080')
+      @config ||= Configuration.new.tap do |config|
+        config.host = 'localhost'
+        config.port = '8080'
+      end
     end
 
     def configure

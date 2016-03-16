@@ -6,17 +6,14 @@ module RackWebpack
     
       protected
 
-      def proxy( path )
+      def fetch( path )
         curl.url = "http://localhost#{path}"
-
-        begin
-          curl.perform
-        rescue Curl::Err::ConnectionFailedError
-          restart
-          curl.perform
-        end
-
+        curl.perform
         [status_code, headers, [curl.body]]
+      end
+
+      def connection_error_clazz
+        Curl::Err::ConnectionFailedError
       end
 
       def curl
