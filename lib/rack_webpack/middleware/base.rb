@@ -5,7 +5,7 @@ module RackWebpack
 
       def initialize(app)
         @app = app
-        warn "Loaded #{self.class.to_s}"
+        warn "Loaded #{self.class}"
       end
 
       def call(env)

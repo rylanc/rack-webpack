@@ -66,7 +66,7 @@ class RackWebpack::FileMutex
         @lock_file.rewind
         @lock_file.read
       else
-        File.read(lock_file_path) if File.exists?(lock_file_path)
+        File.read(lock_file_path) if File.exist?(lock_file_path)
       end
     if content
       content.strip!

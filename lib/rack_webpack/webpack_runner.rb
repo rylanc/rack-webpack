@@ -67,10 +67,13 @@ module RackWebpack
           log "pgroup #{pid} does not exist"
         end
 
+        log "Waiting for child process #{pid} to complete."
         begin
           Process.wait( pid )
           log "Process #{pid} has terminated"
-        rescue Errno::ECHILD; end
+        rescue Errno::ECHILD
+          log "Child process with id #{pid} does not exist"
+        end
 
         mutex.set( nil ) if pid == mutex_pid
         delete_socket
@@ -96,7 +99,7 @@ module RackWebpack
       end
 
       def delete_socket
-        File.delete( socket_path ) if File.exists?( socket_path )
+        File.delete( socket_path ) if File.exist?( socket_path )
       end
 
       def log( msg )
