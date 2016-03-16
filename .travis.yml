@@ -1,4 +1,6 @@
+language: ruby
 script: bundle exec rspec
+cache: bundler
 env:
   global:
     # Code Climate repo token (for test coverage reporting)
